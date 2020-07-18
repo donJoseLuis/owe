@@ -1,0 +1,12 @@
+﻿{
+  "author": "Prague DEV UX Team",
+  "classifications": [ "Common", "console" ],
+  "name": "OWE Console",
+  "identity": "OweTemplate",
+  "shortName": "owe",
+  "tags": {
+    "language": "C#"
+  },
+  "sourceName": "OweTemplate",
+  "preferNameDirectory": "true"
+}
