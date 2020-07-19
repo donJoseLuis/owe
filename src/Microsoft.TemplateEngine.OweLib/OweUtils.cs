@@ -1,6 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 
-using Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList;
+using Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet;
 
 namespace Microsoft.TemplateEngine.OweLib
 {
@@ -14,7 +14,7 @@ namespace Microsoft.TemplateEngine.OweLib
         /// </summary>
         static OweUtils()
         {
-            DefaultOweFactory = new DotnetListOweApiFactory();
+            DefaultOweFactory = new DotnetOweApiFactory();
         }
 
 

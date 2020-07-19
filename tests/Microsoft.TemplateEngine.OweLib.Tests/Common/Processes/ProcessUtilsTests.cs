@@ -1,10 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 
-using Microsoft.TemplateEngine.OweLib.Common.Processes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
-namespace Microsoft.TemplateEngine.Common.Processes
+namespace Microsoft.TemplateEngine.OweLib.Common.Processes.Tests
 {
     [TestClass]
     public class ProcessUtilsTests

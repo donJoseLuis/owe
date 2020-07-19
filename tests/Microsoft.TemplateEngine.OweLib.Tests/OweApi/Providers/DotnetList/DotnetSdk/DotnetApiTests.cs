@@ -6,13 +6,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList.DotnetSdk.Tests
+namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk.Tests
 {
     [TestClass]
     public class DotnetApiTests
     {
         [TestMethod]
-        public void TestNominativeOweVersionParsing()
+        public void TestNominativeSdkParsing()
         {
             string listSdksOutcome = "3.1.301 [C:\\Program Files\\dotnet\\sdk]\r\n3.0.101 [C:\\Program Files\\dotnet\\sdk]\r\n";
             DotnetApi api = new DotnetApi();
@@ -23,7 +23,7 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList.DotnetSdk.
         }
 
         [TestMethod]
-        public void TestNominativeWorkloadVersionWrapperParsing()
+        public void TestNominativeWorkloadParsing()
         {
             string listRuntimesOutcome = "Microsoft.AspNetCore.All 2.1.19 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.All]\r\n" +
                 "Microsoft.AspNetCore.App 2.1.19 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\r\n";
@@ -44,7 +44,16 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList.DotnetSdk.
         }
 
         [TestMethod]
-        public void TestNominativeGetWorkloadVersionWrappers()
+        public void TestNominativeGetSdks()
+        {
+            DotnetApi api = new DotnetApi();
+            VersionInfo sdk = api.Sdks.InstalledItems.First();
+            Assert.IsNotNull(sdk);
+            Assert.IsTrue(sdk.IsValid);
+        }
+
+        [TestMethod]
+        public void TestNominativeGetWorkloads()
         {
             DotnetApi api = new DotnetApi();
             WorkloadVersionInfo workload = api.Workloads.InstalledItems.First();
@@ -54,7 +63,15 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList.DotnetSdk.
         }
 
         [TestMethod]
-        public void TestNegativeNullInput()
+        public void TestNominativeGetTemplateFolders()
+        {
+            DotnetApi api = new DotnetApi();
+            VersionInfo templateFolders = api.Templates.InstalledItems.First();
+            Assert.IsNotNull(templateFolders);
+        }
+
+        [TestMethod]
+        public void TestNegativeNullInputToOweApiMethods()
         {
             DotnetApi api = new DotnetApi();
             _ = Assert.ThrowsException<ArgumentNullException>(() => api.Workloads.GetMatchingItems(string.Empty));

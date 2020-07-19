@@ -3,8 +3,6 @@
 namespace Microsoft.TemplateEngine.OweLib
 {
     // TODO: test template installation
-    // TODO: implement nuget asset management
-    // TODO: implement template nuget placement
     /// <summary>
     /// Optional workload emulator features.
     /// </summary>
@@ -19,26 +17,26 @@ namespace Microsoft.TemplateEngine.OweLib
         /// <summary>
         /// Try-pattern for installing a specified version of the emulated optional workload.
         /// </summary>
-        /// <param name="targetedVersion"><see cref="string"/> specified version of the emulated optional workload.</param>
+        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
         /// <param name="error"><see cref="string"/> describes an ocurred error, if any.</param>
         /// <returns>True if the operation succeeded, false otherwise.</returns>
-        bool TryInstall(string targetedVersion, out string error);
+        bool TryInstall(string version, out string error);
 
         /// <summary>
         /// Try-pattern for updating an existing specified version of the emulated optional workload.
         /// </summary>
-        /// <param name="targetedVersion"><see cref="string"/> specified version of the emulated optional workload.</param>
+        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
         /// <param name="error"><see cref="string"/> describes an ocurred error, if any.</param>
         /// <returns>True if the operation succeeded, false otherwise.</returns>
-        bool TryUpdate(string targetedVersion, out string error);
+        bool TryUpdate(string version, out string error);
 
         /// <summary>
         /// Try-pattern for uninstalling a specified version of the emulated optional workload.
         /// </summary>
-        /// <param name="targetedVersion"><see cref="string"/> specified version of the emulated optional workload.</param>
+        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
         /// <param name="error"><see cref="string"/> describes an ocurred error, if any.</param>
         /// <returns>True if the operation succeeded, false otherwise.</returns>
-        bool TryUninstall(string targetedVersion, out string error);
+        bool TryUninstall(string version, out string error);
 
         /// <summary>
         /// Try-pattern for uninstalling the <see cref="OweName"/> workload.
@@ -56,8 +54,8 @@ namespace Microsoft.TemplateEngine.OweLib
         /// <summary>
         /// Exposes <see cref="string"/> location of the specified version of the emulated optional workload.
         /// </summary>
-        /// <param name="targetedVersion"><see cref="string"/> specified version of the emulated optional workload.</param>
+        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
         /// <returns><see cref="string"/> location of the specified OWE version.</returns>
-        string GetOweLocation(string targetedVersion);
+        string GetOweLocation(string version);
     }
 }

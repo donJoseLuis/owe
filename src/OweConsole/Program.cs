@@ -3,6 +3,7 @@
 using Microsoft.TemplateEngine.OweLib;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
 namespace OweConsole
@@ -25,35 +26,62 @@ namespace OweConsole
 
         private static IOweApi OweApi;
 
+        private static string LogsDirectory;
 
-        static Program()
-        {
-            _ = Trace.Listeners.Add(new ConsoleTraceListener());
-            _ = Trace.Listeners.Add(new TextWriterTraceListener($"Log{Guid.NewGuid()}.log", "oweListener"));
-            Trace.AutoFlush = true;
-        }
 
         static void Main(string[] args)
         {
+            _ = Trace.Listeners.Add(new ConsoleTraceListener());
+            LogsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+            if (!Directory.Exists(LogsDirectory))
+            {
+                Directory.CreateDirectory(LogsDirectory);
+            }
+            _ = Trace.Listeners.Add(new FormattedMessageTextWriterTraceListener(Path.Combine(LogsDirectory, $"Log_{Guid.NewGuid()}.log"), "oweListener"));
+            Trace.AutoFlush = true;
+
+            ShowEmphasisMessage($"Loading {AppName}...");
             OweApi = OweUtils.DefaultOweFactory.Create();
+            ShowEmphasisMessage($"{AppName} Loading completed.");
+            Trace.WriteLine(string.Empty);
+
             ProcessArguments(args);
         }
 
 
-        private static string HelpMessage => $"{AppName}{Environment.NewLine}Manage the emulated optional workload (OWE){Environment.NewLine}" +
-            $"{Environment.NewLine}Options:{Environment.NewLine}" +
-            $"{SwitchInstall} [version]: installs the specified OWE version. Example: {AppName} {SwitchInstall} 5.1.1{Environment.NewLine}" +
-            $"{SwitchUninstall} [version]: uninstalls the specified OWE version.  Example: {AppName} {SwitchUninstall} 5.1.1{Environment.NewLine}" +
-            $"{SwitchUpdate} [version]: updates the specified OWE version.  Example: {AppName} {SwitchUpdate} 5.1.1{Environment.NewLine}" +
-            $"{SwitchGetVersion}: lists all OWE installed versions.   Example: {AppName} {SwitchGetVersion}{Environment.NewLine}" +
-            $"{SwitchLocation} [version]: shows the location on disk for the spcified OWE. Example: {AppName} {SwitchLocation} 5.1.1{Environment.NewLine}" +
-            $"{SwitchHelp}: displays {AppName} help.";
+        private static string HelpMessage => 
+            $"{AppName}{Environment.NewLine}Manage the optional workload emulator (OWE){Environment.NewLine}" +
+            $"WARNING: {AppName} must run as Administrator.{Environment.NewLine}" +
+            $"{Environment.NewLine}Usage Options:{Environment.NewLine}" +
+            $"{SwitchInstall} [version (MAJOR.MINOR.PATCH)] : installs the specified OWE version. Example: {AppName} {SwitchInstall} 5.1.1{Environment.NewLine}" +
+            $"{SwitchUninstall} [version (MAJOR.MINOR.PATCH)] : uninstalls the specified OWE version.  Example: {AppName} {SwitchUninstall} 5.1.1{Environment.NewLine}" +
+            $"{SwitchUpdate} [version (MAJOR.MINOR.PATCH)] : updates the specified OWE version.  Example: {AppName} {SwitchUpdate} 5.1.1{Environment.NewLine}" +
+            $"{SwitchLocation} [version (MAJOR.MINOR.PATCH)] : shows specified OWE's location on disk. Example: {AppName} {SwitchLocation} 5.1.1{Environment.NewLine}" +
+            $"{SwitchGetVersion}                               : lists all OWE installed versions.   Example: {AppName} {SwitchGetVersion}{Environment.NewLine}" +
+            $"{SwitchHelp}                               : displays {AppName} help.";
 
 
-        private static void ShowErrorAndExit(string errorMessage)
+        private static void ShowEmphasisMessage(string message, bool logMessage = true)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            if (logMessage)
+            {
+                Trace.WriteLine(message);
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+            Console.ResetColor();
+        }
+
+        private static void ShowErrorAndExit(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(errorMessage);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Console.WriteLine(message);
+            }
             Console.ResetColor();
             Console.WriteLine(HelpMessage);
             Environment.Exit(1);
@@ -74,6 +102,7 @@ namespace OweConsole
                 SwitchGetVersion => GetVersion,
                 SwitchUninstall => UnInstall,
                 SwitchUpdate => Update,
+                SwitchHelp => x => ShowErrorAndExit(string.Empty),
                 _ => null
             };
 
@@ -82,6 +111,7 @@ namespace OweConsole
                 ShowErrorAndExit($"Unsupported option {args[0]}.");
                 return;
             }
+
             method(args);
         }
 
@@ -102,18 +132,13 @@ namespace OweConsole
 
         private static void GetVersion(string[] args)
         {
-            Trace.WriteLine($"{args[0]} invoked.");
             try
             {
-                Trace.WriteLine(string.Join(",", OweApi.GetOweVersions()));
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(e.Message);
+                _ = OweApi.GetOweVersions(); ;
             }
             finally
             {
-                Trace.WriteLine($"{args[0]} execution completed.");
+                Trace.WriteLine("Execution completed.");
             }
         }
 
@@ -121,13 +146,12 @@ namespace OweConsole
         {
             if (args.Length < 2)
             {
-                ShowErrorAndExit($"{args[0]} invoked without a specified version.");
+                ShowErrorAndExit("Invoked without a specified version.");
             }
 
-            Trace.WriteLine($"{args[0]} invoked with {args[1]}.");
             try
             {
-                Trace.WriteLine(OweApi.GetOweLocation(args[1]));
+                _ = OweApi.GetOweLocation(args[1]);
             }
             catch (Exception e)
             {
@@ -135,7 +159,7 @@ namespace OweConsole
             }
             finally
             {
-                Trace.WriteLine($"{args[0]} execution completed.");
+                Trace.WriteLine("Execution completed.");
             }
         }
 
@@ -143,17 +167,13 @@ namespace OweConsole
         {
             if (args.Length < 2)
             {
-                ShowErrorAndExit($"{args[0]} invoked without a specified version.");
+                ShowErrorAndExit("Invoked without a required version.");
             }
 
-            Trace.WriteLine($"{args[0]} invoked with {args[1]}.");
-            if (!oweCommand(args[1], out string error))
+            if (oweCommand(args[1], out _))
             {
-                Trace.TraceError(error);
-                return;
+                Trace.WriteLine("Execution completed.");
             }
-
-            Trace.WriteLine($"{args[0]} execution completed.");
         }
     }
 }

@@ -23,18 +23,16 @@ namespace Microsoft.TemplateEngine.OweLib.Models.Extensions
                 tokens[1].Replace("[", string.Empty).Replace("]", string.Empty));
         }
 
-        internal static string ValidateVersionAndReturnErrorIfAny(this string targetedVersion)
+        internal static void ThrowIfInvalidateVersion(this string version)
         {
-            if (string.IsNullOrWhiteSpace(targetedVersion))
+            if (string.IsNullOrWhiteSpace(version))
             {
-                return "Null targeted version";
+                throw new ArgumentNullException(paramName: nameof(version));
             }
-            else if (!Version.TryParse(targetedVersion, out Version _))
+            else if (!Version.TryParse(version, out Version _))
             {
-                return $"Invalid version: {targetedVersion}, expected format is MAJOR.MINOR.PATCH";
+                throw new InvalidCastException($"Invalid version: {version}, expected format is MAJOR.MINOR.PATCH");
             }
-
-            return string.Empty;
         }
     }
 }

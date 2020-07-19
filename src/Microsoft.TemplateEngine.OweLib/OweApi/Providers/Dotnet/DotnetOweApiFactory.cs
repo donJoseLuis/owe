@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 
-namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList
+namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
 {
-    internal sealed class DotnetListOweApiFactory : IOweApiFactory
+    internal sealed class DotnetOweApiFactory : IOweApiFactory
     {
         private readonly static string ApiType = typeof(IOweApi).Name;
 
@@ -11,7 +11,7 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList
 
         public IOweApi Create()
         {
-            return new DotnetListOweApi();
+            return new DotnetOweApi();
         }
     }
 }

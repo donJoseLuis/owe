@@ -1,21 +1,20 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 
-using Microsoft.TemplateEngine.OweLib.OweApi.Providers.DotnetList;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-namespace Microsoft.TemplateEngine.OweLib.Tests.OweApi.Providers.DotnetListOwe
+namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Tests
 {
     [TestClass]
-    public class DotnetListOweApiTests
+    public class DotnetOweApiTests
     {
         [TestMethod]
         public void TetsNominativeTryInstallAndUninstall()
         {
             string version = "9.1.0";
-            DotnetListOweApi api = new DotnetListOweApi
+            DotnetOweApi api = new DotnetOweApi
             {
-                DisableMinimumSdkVerification = true
+                DisabledMinSdkVersionCheck = true
             };
 
             Assert.IsTrue(api.TryInstall(version, out string error), error);
