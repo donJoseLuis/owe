@@ -22,11 +22,6 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk
             return string.Empty;
         }
 
-        internal override string GetRootDirectory(string state)
-        {
-            throw new NotImplementedException();
-        }
-
         internal override async Task<VersionInfo[]> GetItemsAsync(CancellationToken ct = default)
         {
             return await GetDotnetListOutputAsync("sdks", outcome => ParseDotnetListOutcome(outcome, x => x.ToOweVersion()), ct).ConfigureAwait(false);

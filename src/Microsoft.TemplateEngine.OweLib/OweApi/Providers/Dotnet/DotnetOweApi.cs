@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using Microsoft.TemplateEngine.OweLib.Models;
 
 [assembly: InternalsVisibleTo("Microsoft.TemplateEngine.OweLib.Tests")]
 namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
@@ -38,84 +40,30 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
             return TryRunOweCommand(version, MethodBase.GetCurrentMethod().Name, InstallAndReturnErrorIfAny, out error);
         }
 
-        public bool TryUpdate(string version, out string error)
-        {
-            return TryRunOweCommand(version, MethodBase.GetCurrentMethod().Name, UpdateAndReturnErrorIfAny, out error);
-        }
-
         public bool TryUninstall(string version, out string error)
         {
             return TryRunOweCommand(version, MethodBase.GetCurrentMethod().Name, UninstallAndReturnErrorIfAny, out error);
         }
 
-        public bool TryUninstallOwe(out string error)
+        public string[] GetOweTemplateLocations()
         {
             string methodName = MethodBase.GetCurrentMethod().Name;
-            Trace.WriteLine($"{methodName}. Invoked.");
-
-            try
+            Trace.WriteLine($"{methodName}. Called.");
+            List<string> list = new List<string>();
+            foreach (VersionInfo version in _dotnetApi.Templates.InstalledItems)
             {
-                error = UninstallAndReturnErrorIfAny(Path.Combine(_dotnetApi.Workloads.RootDirectory, OweName));
-            }
-            catch (Exception e)
-            {
-                error = e.Message;
-            }
-
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                Trace.WriteLine($"{methodName}. {error}");
-                return false;
-            }
-            _dotnetApi.Workloads.ReloadItemsAsync().Wait();
-            Trace.WriteLine($"{methodName}. Completed execution.");
-            return true;
-        }
-
-        public string[] GetOweVersions()
-        {
-            string[] versions = null;
-            try
-            {
-                versions = _dotnetApi.Workloads.GetMatchingItems(OweName)
-                ?.Where(x => x.IsValid)
-                ?.Select(x => x.VersionHandle.ToString())
-                ?.ToArray() ?? new string[] { };
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError($"Failed to find OWE versions.  Reason: {e.Message}");
-            }
-
-            if (versions == null || versions.Length < 1)
-            {
-                Trace.WriteLine($"Failed to find OWE versions.  Reason: No installed versions of Workload {OweName}.");
-            }
-            else
-            {
-                Trace.WriteLine($"Installed {OweName} versions: {string.Join(",", versions)}");
-            }
-            return versions;
-        }
-
-        public string GetOweLocation(string version)
-        {
-            _ = string.IsNullOrWhiteSpace(version) ? throw new ArgumentNullException(paramName: nameof(version)) : version;
-
-            string methodName = MethodBase.GetCurrentMethod().Name;
-            Trace.WriteLine($"{methodName}. Called with {nameof(version)} {version ?? "no-version"}.");
-
-            if (_dotnetApi.Workloads.GetMatchingItems(OweName).Any(x => x.VersionHandle.ToString() == version))
-            {
-                string directory = _dotnetApi.Workloads.ComputeItemDirectory(OweName, version);
-                if (Directory.Exists(directory))
+                string targetNuGetPath = Path.Combine(version.Location, OweTemplateNuGetFile);
+                if (File.Exists(targetNuGetPath))
                 {
-                    Trace.WriteLine($"{methodName}. Location of workload {OweName} & version: {version} is {directory}.");
-                    return directory;
+                    list.Add(targetNuGetPath);
+                }
+                else
+                {
+                    Trace.TraceWarning($"{methodName}. Inexistent file: {targetNuGetPath}");
                 }
             }
-            Trace.TraceError($"{methodName}. Workload {OweName} & version: {version} not found.");
-            return string.Empty;
+            Trace.TraceInformation($"{methodName}. Located {list.Count} templates.");
+            return list.ToArray();
         }
         #endregion
 
@@ -127,7 +75,7 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
 
 
         #region unit testing hooks
-        internal bool DisabledMinSdkVersionCheck { get; set; } = true;
+        internal bool DisabledMinSdkVersionCheck { get; set; } = false;
         #endregion
 
 
@@ -142,6 +90,7 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
                 return false;
             }
             _dotnetApi.Workloads.ReloadItemsAsync().Wait();
+            _dotnetApi.Templates.ReloadItemsAsync().Wait();
             Trace.WriteLine($"{methodName}. Completed execution for version {version}.");
             return true;
         }
@@ -182,19 +131,6 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet
             return string.Empty;
         }
 
-        private string UpdateAndReturnErrorIfAny(string version)
-        {
-            string versionedOweDirectory = _dotnetApi.Workloads.ComputeItemDirectory(OweName, version);
-            if (!Directory.Exists(versionedOweDirectory))
-            {
-                return $"Inexistent workLoad directory, {versionedOweDirectory}.";
-            }
-
-            // TODO: what update behavior do we want during updates?
-            return string.Empty;
-        }
-
-        // TODO: what should be the dotnet new uninstall behavior?
         private string UninstallAndReturnErrorIfAny(string version)
         {
             string outcome = _dotnetApi.Workloads.UninstallAndReturnErrorIfAny(OweName, version);

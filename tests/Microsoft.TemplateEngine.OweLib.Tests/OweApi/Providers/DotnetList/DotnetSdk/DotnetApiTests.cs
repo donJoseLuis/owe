@@ -4,7 +4,9 @@ using Microsoft.TemplateEngine.OweLib.Models;
 using Microsoft.TemplateEngine.OweLib.Models.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk.Tests
 {
@@ -23,13 +25,13 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk.Tests
         }
 
         [TestMethod]
-        public void TestNominativeWorkloadParsing()
+        public void TestNominativeRuntimeParsing()
         {
             string listRuntimesOutcome = "Microsoft.AspNetCore.All 2.1.19 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.All]\r\n" +
                 "Microsoft.AspNetCore.App 2.1.19 [C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App]\r\n";
 
             DotnetApi api = new DotnetApi();
-            WorkloadVersionInfo[] runtimes = api.Workloads.ParseDotnetListOutcome(listRuntimesOutcome, x => x.ToWorkload());
+            VersionInfo[] runtimes = api.Runtimes.ParseDotnetListOutcome(listRuntimesOutcome, x => x.ToWorkload());
             Assert.IsNotNull(runtimes);
             Assert.IsTrue(runtimes.Length == 2);
         }
@@ -53,29 +55,29 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk.Tests
         }
 
         [TestMethod]
-        public void TestNominativeGetWorkloads()
+        public async Task TestNominativeGetTemplateFoldersAsync()
         {
             DotnetApi api = new DotnetApi();
-            WorkloadVersionInfo workload = api.Workloads.InstalledItems.First();
-            WorkloadVersionInfo[] items = api.Workloads.GetMatchingItems(workload.Name);
-            Assert.IsNotNull(items);
-            Assert.IsTrue(items.Length > 0);
-        }
-
-        [TestMethod]
-        public void TestNominativeGetTemplateFolders()
-        {
-            DotnetApi api = new DotnetApi();
-            VersionInfo templateFolders = api.Templates.InstalledItems.First();
-            Assert.IsNotNull(templateFolders);
+            string path = Path.Combine(api.Templates.RootDirectory, "20.1.0");
+            Directory.CreateDirectory(path);
+            try
+            {
+                await api.Templates.ReloadItemsAsync().ConfigureAwait(false);
+                VersionInfo templateFolders = api.Templates.InstalledItems.First();
+                Assert.IsNotNull(templateFolders);
+            }
+            finally
+            {
+                Directory.Delete(path);
+            }
         }
 
         [TestMethod]
         public void TestNegativeNullInputToOweApiMethods()
         {
             DotnetApi api = new DotnetApi();
-            _ = Assert.ThrowsException<ArgumentNullException>(() => api.Workloads.GetMatchingItems(string.Empty));
-            _ = Assert.ThrowsException<ArgumentNullException>(() => api.Workloads.GetMatchingItems(null));
+            _ = Assert.ThrowsException<ArgumentNullException>(() => api.Runtimes.GetMatchingItems(string.Empty));
+            _ = Assert.ThrowsException<ArgumentNullException>(() => api.Runtimes.GetMatchingItems(null));
             _ = Assert.ThrowsException<ArgumentNullException>(() => api.Sdks.AnyEqualOrNewer(null));
         }
     }

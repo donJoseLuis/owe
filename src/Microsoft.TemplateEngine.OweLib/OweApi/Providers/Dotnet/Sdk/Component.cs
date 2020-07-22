@@ -108,12 +108,23 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk
             Trace.WriteLine($"{InstalledItems?.Length ?? 0} {GetType().Name} item{((InstalledItems?.Length ?? 0) == 1 ? string.Empty : "s")} loaded.");
         }
 
+        internal string GetRootDirectory(string state)
+        {
+            _ = string.IsNullOrWhiteSpace(state) ? throw new ArgumentNullException(paramName: nameof(state)) : state;
+
+            if (!Directory.Exists(state))
+            {
+                _ = Directory.CreateDirectory(state);
+            }
+            _ = Directory.Exists(state) ? state : throw new DirectoryNotFoundException(state);
+
+            return state;
+        }
+
 
         internal abstract TModel[] GetMatchingItems(string itemName);
 
         internal abstract string GetRootDirectory();
-
-        internal abstract string GetRootDirectory(string state);
 
         internal abstract Task<TModel[]> GetItemsAsync(CancellationToken ct = default);
 

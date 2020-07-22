@@ -3,7 +3,6 @@
 using Microsoft.TemplateEngine.OweLib.Common.Extensions;
 using Microsoft.TemplateEngine.OweLib.Models;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk
 {
-    internal sealed class TemplateFolderComponent : Component<VersionInfo>
+    internal sealed class TemplateComponent : Component<VersionInfo>
     {
-        internal TemplateFolderComponent(string sdkRootDirectory)
+        internal TemplateComponent(string sdkRootDirectory)
             : base(sdkRootDirectory)
         {
         }
@@ -27,13 +26,6 @@ namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk
         internal override string GetRootDirectory()
         {
             throw new NotImplementedException();
-        }
-
-        internal override string GetRootDirectory(string state)
-        {
-            _ = string.IsNullOrWhiteSpace(state) ? throw new ArgumentNullException(paramName: nameof(state)) : state;
-            _ = Directory.Exists(state) ? state : throw new DirectoryNotFoundException();
-            return Path.Combine(new DirectoryInfo(state).Parent.FullName, "templates");
         }
 
         internal override async Task<VersionInfo[]> GetItemsAsync(CancellationToken ct = default)

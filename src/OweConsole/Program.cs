@@ -14,11 +14,7 @@ namespace OweConsole
 
         private const string SwitchUninstall = "--u";
 
-        private const string SwitchUpdate = "--p";
-
-        private const string SwitchGetVersion = "--v";
-
-        private const string SwitchLocation = "--l";
+        private const string SwitchLocations = "--l";
 
         private const string SwitchHelp = "--h";
 
@@ -49,15 +45,13 @@ namespace OweConsole
         }
 
 
-        private static string HelpMessage => 
+        private static string HelpMessage =>
             $"{AppName}{Environment.NewLine}Manage the optional workload emulator (OWE){Environment.NewLine}" +
-            $"WARNING: {AppName} must run as Administrator.{Environment.NewLine}" +
+            $"WARNING: {AppName} may require to \"run as Administrator\" depending on the folders used.{Environment.NewLine}" +
             $"{Environment.NewLine}Usage Options:{Environment.NewLine}" +
             $"{SwitchInstall} [version (MAJOR.MINOR.PATCH)] : installs the specified OWE version. Example: {AppName} {SwitchInstall} 5.1.1{Environment.NewLine}" +
             $"{SwitchUninstall} [version (MAJOR.MINOR.PATCH)] : uninstalls the specified OWE version.  Example: {AppName} {SwitchUninstall} 5.1.1{Environment.NewLine}" +
-            $"{SwitchUpdate} [version (MAJOR.MINOR.PATCH)] : updates the specified OWE version.  Example: {AppName} {SwitchUpdate} 5.1.1{Environment.NewLine}" +
-            $"{SwitchLocation} [version (MAJOR.MINOR.PATCH)] : shows specified OWE's location on disk. Example: {AppName} {SwitchLocation} 5.1.1{Environment.NewLine}" +
-            $"{SwitchGetVersion}                               : lists all OWE installed versions.   Example: {AppName} {SwitchGetVersion}{Environment.NewLine}" +
+            $"{SwitchLocations}                               : shows OWE's templates locations on disk. Example: {AppName} {SwitchLocations}{Environment.NewLine}" +
             $"{SwitchHelp}                               : displays {AppName} help.";
 
 
@@ -98,10 +92,8 @@ namespace OweConsole
             Action<string[]> method = args[0] switch
             {
                 SwitchInstall => Install,
-                SwitchLocation => GetLocation,
-                SwitchGetVersion => GetVersion,
+                SwitchLocations => GetTemplateLocations,
                 SwitchUninstall => UnInstall,
-                SwitchUpdate => Update,
                 SwitchHelp => x => ShowErrorAndExit(string.Empty),
                 _ => null
             };
@@ -125,33 +117,19 @@ namespace OweConsole
             ExecuteOweOperation(args, OweApi.TryUninstall);
         }
 
-        private static void Update(string[] args)
-        {
-            ExecuteOweOperation(args, OweApi.TryUpdate);
-        }
-
-        private static void GetVersion(string[] args)
+        private static void GetTemplateLocations(string[] args)
         {
             try
             {
-                _ = OweApi.GetOweVersions(); ;
-            }
-            finally
-            {
-                Trace.WriteLine("Execution completed.");
-            }
-        }
-
-        private static void GetLocation(string[] args)
-        {
-            if (args.Length < 2)
-            {
-                ShowErrorAndExit("Invoked without a specified version.");
-            }
-
-            try
-            {
-                _ = OweApi.GetOweLocation(args[1]);
+                string [] locations = OweApi.GetOweTemplateLocations();
+                if (locations != null && locations.Length > 0)
+                {
+                    Trace.WriteLine($"Locations: {string.Join(",", locations)}");
+                }
+                else
+                {
+                    Trace.WriteLine("No templates found on disk");
+                }
             }
             catch (Exception e)
             {

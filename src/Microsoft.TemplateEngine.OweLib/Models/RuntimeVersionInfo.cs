@@ -7,7 +7,7 @@ namespace Microsoft.TemplateEngine.OweLib.Models
     /// <summary>
     /// Abstraction of a work load.
     /// </summary>
-    public sealed class WorkloadVersionInfo : VersionInfo
+    public sealed class RuntimeVersionInfo : VersionInfo
     {
         /// <summary>
         /// ctor.
@@ -16,7 +16,7 @@ namespace Microsoft.TemplateEngine.OweLib.Models
         /// <param name="version"><see cref="string"/> string representation of a <see cref="Version"/> instance.</param>
         /// <param name="location"><see cref="string"/> path on disk where the workload is installed.</param>
         /// <exception cref="ArgumentNullException">Thrown if any of the .ctor paramters is null.</exception>
-        public WorkloadVersionInfo(string workloadName, string version, string location)
+        public RuntimeVersionInfo(string workloadName, string version, string location)
             :base(version, location)
         {
             Name = workloadName ?? throw new ArgumentNullException(nameof(workloadName));

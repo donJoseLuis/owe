@@ -2,7 +2,6 @@
 
 namespace Microsoft.TemplateEngine.OweLib
 {
-    // TODO: test template installation
     /// <summary>
     /// Optional workload emulator features.
     /// </summary>
@@ -23,14 +22,6 @@ namespace Microsoft.TemplateEngine.OweLib
         bool TryInstall(string version, out string error);
 
         /// <summary>
-        /// Try-pattern for updating an existing specified version of the emulated optional workload.
-        /// </summary>
-        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
-        /// <param name="error"><see cref="string"/> describes an ocurred error, if any.</param>
-        /// <returns>True if the operation succeeded, false otherwise.</returns>
-        bool TryUpdate(string version, out string error);
-
-        /// <summary>
         /// Try-pattern for uninstalling a specified version of the emulated optional workload.
         /// </summary>
         /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
@@ -39,23 +30,9 @@ namespace Microsoft.TemplateEngine.OweLib
         bool TryUninstall(string version, out string error);
 
         /// <summary>
-        /// Try-pattern for uninstalling the <see cref="OweName"/> workload.
+        /// Exposes the full path <see cref="string[]"/> to all OWE templates.
         /// </summary>
-        /// <param name="error"><see cref="string"/> describes an ocurred error, if any.</param>
-        /// <returns>True if the operation succeeded, false otherwise.</returns>
-        bool TryUninstallOwe(out string error);
-
-        /// <summary>
-        /// Exposes <see cref="string"/> array of installed versions of the emulated optional workload.
-        /// </summary>
-        /// <returns><see cref="string"/> array of installed OWE versions.</returns>
-        string[] GetOweVersions();
-
-        /// <summary>
-        /// Exposes <see cref="string"/> location of the specified version of the emulated optional workload.
-        /// </summary>
-        /// <param name="version"><see cref="string"/> specified version of the emulated optional workload.</param>
-        /// <returns><see cref="string"/> location of the specified OWE version.</returns>
-        string GetOweLocation(string version);
+        /// <returns>full path to all OWE templates.</returns>
+        string[] GetOweTemplateLocations();
     }
 }

@@ -1,41 +1,48 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 
 using Microsoft.TemplateEngine.OweLib.Models;
-using Microsoft.TemplateEngine.OweLib.Models.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.TemplateEngine.OweLib.OweApi.Providers.Dotnet.Sdk
 {
-    internal sealed class WorkloadComponent : Component<WorkloadVersionInfo>
+    internal sealed class WorkloadComponent : Component<VersionInfo>
     {
-        internal override string GetRootDirectory()
+        internal WorkloadComponent(string workloadDirectory)
+            : base(workloadDirectory)
         {
-            if (InstalledItems == null || InstalledItems.Length < 1)
-            {
-                return string.Empty;
-            }
-            WorkloadVersionInfo runtime = InstalledItems.First();
-            return runtime.Location.Replace(runtime.Name, string.Empty);
         }
 
-        internal override string GetRootDirectory(string state)
+
+        internal override string GetRootDirectory()
         {
             throw new NotImplementedException();
         }
 
-        internal override WorkloadVersionInfo[] GetMatchingItems(string workLoadName)
+        internal override VersionInfo[] GetMatchingItems(string workLoadName)
         {
-            _ = string.IsNullOrWhiteSpace(workLoadName) ? throw new ArgumentNullException(paramName: nameof(workLoadName)) : workLoadName;
-            return InstalledItems.Where(x => x.Name == workLoadName).ToArray();
+            throw new NotImplementedException();
         }
 
-        internal override async Task<WorkloadVersionInfo[]> GetItemsAsync(CancellationToken ct = default)
+        internal override async Task<VersionInfo[]> GetItemsAsync(CancellationToken ct = default)
         {
-            return await GetDotnetListOutputAsync("runtimes", outcome => ParseDotnetListOutcome(outcome, x => x.ToWorkload()), ct).ConfigureAwait(false);
+            return await Task.Factory.StartNew<VersionInfo[]>(() =>
+            {
+                List<VersionInfo> list = new List<VersionInfo>();
+                foreach (DirectoryInfo dir in new DirectoryInfo(RootDirectory).GetDirectories())
+                {
+                    VersionInfo versionInfo = new VersionInfo(dir.Name, dir.FullName);
+                    if (versionInfo.IsValid)
+                    {
+                        list.Add(versionInfo);
+                    }
+                }
+                return list.ToArray();
+            }).ConfigureAwait(false);
         }
 
         internal override bool AnyEqualOrNewer(Version version)

@@ -1,0 +1,16 @@
+﻿{
+  "settings": [
+    {
+      "key": "TemplatesDirectory",
+      "value": "\\tmp\\templates"
+    },
+    {
+      "key": "WorkloadDirectory",
+      "value": "\\tmp\\workloads"
+    },
+    {
+      "key": "MinimumSdkRequired",
+      "value": "5.0.0"
+    }
+  ]
+}

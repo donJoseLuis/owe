@@ -14,11 +14,11 @@ namespace Microsoft.TemplateEngine.OweLib.Models.Extensions
                 new VersionInfo(tokens[0], tokens[1].Replace("[", string.Empty).Replace("]", string.Empty));
         }
 
-        internal static WorkloadVersionInfo ToWorkload(this string item)
+        internal static RuntimeVersionInfo ToWorkload(this string item)
         {
             string[] tokens = item.Split(" [");
             string[] tokens2 = tokens[0].Split(" ");
-            return new WorkloadVersionInfo(tokens2[0],
+            return new RuntimeVersionInfo(tokens2[0],
                 tokens2[1],
                 tokens[1].Replace("[", string.Empty).Replace("]", string.Empty));
         }
